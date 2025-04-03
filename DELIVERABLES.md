@@ -1,50 +1,63 @@
-# Lab Assignment: Multithreaded Banker's Algorithm Implementation
+# Lab Assignment: Multithreaded Banker's Algorithm Implementation  
 
-For this lab, you will write a multithreaded program that implements **Banker's Algorithm** discussed in class ([document attached]). Multiple customers will request/release resources from/to _the bank_. Requests will only be granted if they leave system safe state - unsafe requests denied.
+## Overview  
+For this lab, you will write a multithreaded program that implements the banker’s algorithm discussed in class (document attached). Customers request/release resources from the bank. The banker grants requests **only** if they leave the system in a safe state; unsafe requests are denied. This assignment combines three topics:  
+1. Multithreading  
+2. Preventing race conditions  
+3. Deadlock avoidance  
 
+---
 
-## Core Requirements  
-This program combines three key concepts:  
+## The Banker  
+The banker manages `n` customers competing for `m` resource types using these data structures:  
+
 ```c
-/* these may be any values >=0 */
-#define NUMBER_OF_CUSTOMERS5 
-#define NUMBER_OF_RESOURCES3 
-/* available amountofeach resource */
+/* Values may be >= 0 */
+#define NUMBER_OF_CUSTOMERS 5
+#define NUMBER_OF_RESOURCES 3
+
+/* Available amount of each resource */
 int available[NUMBER_OF_RESOURCES];
-/* maximum demandofeach customer */
+
+/* Maximum demand of each customer */ 
 int maximum[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES];
-/* currently allocated resources */
+
+/* Amount currently allocated */
 int allocation[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES];
-/* remaining needs */
+
+/* Remaining need */ 
 int need[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES];
 ```
 
-### Customer Threads  
-Create `n` threads performing continuous loop:
-- Request random resources bounded by `need[]`
-- Release random resources  
+---
 
-Use mutex locks (`Pthreads`) for shared data access control.
+## The Customers  
+Create `n` customer threads that continually loop between requesting/releasing **random** resources bounded by their `need[]`. Use mutex locks for shared data access (`request_resources()`/`release_resources()`):  
 
-
-### Key Functions  
-```c 
-// Returns0ifgranted,-ifdenied 
-int request_resources(intcustomer_num,intrequest[]);  
-```
-```c 
-// Returns0ifsuccessful,-iferror 
-int release_resources(intcustomer_num,intrelease[]);   
+### Function Prototypes  
+```c
+// Returns 0 if successful (granted), -1 otherwise 
+int request_resources(int customer_num, int request[]);
+int release_resources(int customer_num, int release[]);
 ```
 
-### Execution & Initialization  
-Run programwith resource countsasCLIarguments(e.g.):  
+---
 
-```bash ./a.out1057 ```
+## Implementation Details  
+### Program Invocation Example:
+Initialize resource counts via command line arguments:
+```bash
+./a.out 10 5 7    # Available = [10 ,5 ,7]
+```
 
-Initialize arrays:
-- `available`: From CLI arguments  
-- `maximum`: Custom initialization method permitted
+### Core Algorithms  
+Bankers rely on two algorithms:
+1.**Safety Algorithm** — Checks system safety under current state.
+2.**Resource-Request Algorithm** — Validates safe granting of requests.
 
 
-> **Critical Constraints**: Must prevent race conditions through mutex lockingand implement full safety algorithm checks.
+### Requirements Summary   
+Write a multithreaded C program where:
+- Processes request/release resources dynamically.
+- Requests require safety validation via bankers algorithm.
+- Mutex locks prevent race conditions during shared data access.
